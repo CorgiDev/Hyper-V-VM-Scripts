@@ -10,7 +10,7 @@ The following are things you must have before you can create a VM in Hyper-V, pa
 - You MUST have a valid Windows 10 or 11 ISO.
   - [Download Windows 10 ISO](https://www.microsoft.com/en-us/software-download/windows10)
   - [Download Windows 11 ISO](https://www.microsoft.com/software-download/windows11)
-- You MUST have a valid Windows key to acttivate your Windowss VM.
+- You MUST have a valid Windows key to acttivate your Windows VM.
 
 # How to Setup VM in Hyper-V
 
