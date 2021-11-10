@@ -78,7 +78,7 @@ if($PolicyScope -eq "Machine"){
 #################################################################
 # Start VM creation in Hyper-V
 
-New-VM -Name $WinVMName -MemoryStartupBytes 8GB -BootDevice VHD -NewVHDPath .\VMs\Win11.vhdx -Path .\VMData -NewVHDSizeBytes 175GB -Generation 2
+New-VM -Name $WinVMName -MemoryStartupBytes 8GB -BootDevice VHD -NewVHDPath .\VMs\Win11.vhdx -Path .\VMData -NewVHDSizeBytes 175GB -Generation 2 -Switch "Default Switch"
 Set-VMProcessor -VMName $WinVMName -Count 2
 Set-VMDvdDrive -VMName $WinVMName -ControllerNumber 1 -Path $IsoPath
 Enable-VMIntegrationService * -VMName $WinVMName
