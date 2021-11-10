@@ -1,10 +1,23 @@
 #################################################################
 # Parameters
 $WinVMName = "Test-Win11VM"
-
 $PolicyScope = "Machine"
-
 $IsoPath = "C:\Users\%USERPROFILE%\Downloads\Win11_English_x64.iso"
+
+#################################################################
+# Ensure script run as Admin and relaunch if not
+$CurrentIdentity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+$CurrentPrincipal = New-Object System.Security.Principal.WindowsPrincipal($CurrentIdentity)
+ 
+if (-not ($CurrentPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator))) {
+    $WaitTime = 5 
+    Write-Warning "You do not have Administrator rights to run this script."
+    Write-Warning "Launching a new powershell process as Administrator in $WaitTime seconds..." 
+    Start-Sleep -Seconds $WaitTime 
+    $Arguments = '-File "' + $PSCommandPath + '"' 
+    Start-Process "powershell" -Verb RunAs -ArgumentList $Arguments 
+    return
+}
 
 #################################################################
 # Install/Enable various modules and features
