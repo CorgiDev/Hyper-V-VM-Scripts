@@ -1,14 +1,13 @@
-# Windows 10/11 VM in Hyper-V
+# Windows 11 VM in Hyper-V
 
 ## Pre-requisites
 
-The following are things you must have before you can create a VM in Hyper-V, particularly a Windows 10 or 11 VM.
+The following are things you must have before you can create a VM in Hyper-V, particularly a Windows 11 VM.
 
 - Your physical computer MUST support TPM.
-  - This is the case for Windows 11 at least. Windows 10 may work without.
+  - This is required for Windows 11.
 - Your physical computer MUST be running a Pro/Enterprise version of Windows. Home editions will not work.
-- You MUST have a valid Windows 10 or 11 ISO.
-  - [Download Windows 10 ISO](https://www.microsoft.com/en-us/software-download/windows10)
+- You MUST have a valid Windows 11 ISO.
   - [Download Windows 11 ISO](https://www.microsoft.com/software-download/windows11)
 - You MUST have a valid Windows key to acttivate your Windows VM.
 
@@ -16,7 +15,7 @@ The following are things you must have before you can create a VM in Hyper-V, pa
 
 1. Make sure the Windows ISO is located in your Downloads folder. `"C:\Users\%USERPROFILE%\Downloads\`
 2. Make sure the ISO file name matches what is in the `IsoPath` variable at the top of the script.
-2. Run the `Win10_11VM.ps1` script as admin.
+2. Run the `Win11VM.ps1` script as admin.
 3. As long as it completes without errors, the window to start the VM should display.
 4. Start the VM, and proceed with the insstall of Windows, you'll need to press a key to have it boot to the installation media.
 5. DURING the install,
