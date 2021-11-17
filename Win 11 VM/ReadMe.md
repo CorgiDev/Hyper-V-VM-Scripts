@@ -36,6 +36,48 @@ The following are things you must have before you can create a VM in Hyper-V, pa
 18. Turn on Bitlocker.
 19. If using your personal account, go to "Settings" > "Accounts" > "Access work or schoool" and connect your work/school account.
 
+##
+
+If you get an error about not being able to run the script because running scripts is disabled on this system there is an easy fix for this. The error will look similar to the one shown below:
+
+```
+File C:\Users\evilt\Desktop\repos\Hyper-V-VM-Scripts\Win 11 VM\Win11VM.ps1 cannot be loaded because running scripts is disabled on 
+this system. For more information, see about_Execution_Policies at https:/go.microsoft.com/fwlink/?LinkID=135170.
+    + CategoryInfo          : SecurityError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnauthorizedAccess
+```
+
+The fix for that is to first run `Get-ExecutionPolicy -List`. This will show you what your script execution policy is currently set to. If running scripts is disabled, you should get results like those below.
+
+```
+PS C:\WINDOWS\system32> Get-ExecutionPolicy -List
+
+        Scope ExecutionPolicy
+        ----- ---------------
+MachinePolicy       Undefined
+   UserPolicy       Undefined
+      Process       Undefined
+  CurrentUser       Undefined
+ LocalMachine      Restricted
+```
+
+If you do, run the command `Set-ExecutionPolicy Unrestricted -Force`, and then run the list command again to confirm it has changed. Your results should appear similar to those shown below:
+
+```
+PS C:\WINDOWS\system32> Set-ExecutionPolicy Unrestricted -Force
+PS C:\WINDOWS\system32> Get-ExecutionPolicy –List
+
+        Scope ExecutionPolicy
+        ----- ---------------
+MachinePolicy       Undefined
+   UserPolicy       Undefined
+      Process       Undefined
+  CurrentUser       Undefined
+ LocalMachine    Unrestricted
+```
+
+Now run the VM creation script again. Barring any other issues, the script should run successfully now.
+
 ## Additional Recommended Installs
 
 Links in this section must be accessed from within the VM or they will download to your physical machine. Unless of course, you shared a drive with your VM.

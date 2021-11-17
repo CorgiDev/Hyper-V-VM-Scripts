@@ -90,6 +90,8 @@ Set-VMKeyProtector -VMName $WinVMName -KeyProtector $kp.RawData
 Enable-VMTPM -VMName $WinVMName
 Set-VMSecurity -VMName $WinVMName -EncryptStateAndVmMigrationTraffic $true
 
+
+# TODO: If errors occurred, the VM needs to be deleted still since it won't have been created correctly.
 # Verify if VM exists before trying to run it. Delete if it does.
 $Exists = Get-VM -VMName $WinVMName -ErrorAction SilentlyContinue
 
@@ -100,7 +102,7 @@ if($Exists){
 else{
 	Write "Windows 11 VM creation failed. Checking if failed VHD was still created."
     if(Test-Path $vhdPath) {
-        Write-Host "VHD was created. Deleting failed VHD."
+        Write-Host "VHD was created during failed run. Deleting failed VHD."
         #Perform file based operation.. If file exists then delete file
         Remove-Item $vhdPath -Confirm
     }
