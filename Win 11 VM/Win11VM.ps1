@@ -96,11 +96,11 @@ Set-VMSecurity -VMName $WinVMName -EncryptStateAndVmMigrationTraffic $true
 $Exists = Get-VM -VMName $WinVMName -ErrorAction SilentlyContinue
 
 if($Exists){
-	Write "Windows 11 VM creation successful. Starting first run of VM."
+	Write-Host "Windows 11 VM creation successful. Starting first run of VM."
     VMConnect.exe localhost $WinVMName /edit
 }
 else{
-	Write "Windows 11 VM creation failed. Checking if failed VHD was still created."
+	Write-Host "Windows 11 VM creation failed. Checking if failed VHD was still created."
     if(Test-Path $vhdPath) {
         Write-Host "VHD was created during failed run. Deleting failed VHD."
         #Perform file based operation.. If file exists then delete file
