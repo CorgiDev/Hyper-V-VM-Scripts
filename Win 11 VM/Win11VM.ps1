@@ -3,6 +3,7 @@
 $WinVMName = "Test-Win11VM"
 $PolicyScope = "Machine"
 $IsoPath = "C:\Users\%USERPROFILE%\Downloads\Win11_English_x64.iso"
+$vhdPath = ".\VMs\Win11.vhdx"
 
 #################################################################
 # Ensure script run as Admin and relaunch if not
@@ -21,7 +22,6 @@ if (-not ($CurrentPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRo
 
 #################################################################
 # Install/Enable various modules and features
-
 # Installs RSAT tools to allow for GPO modifications later
 Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability -Online
 
@@ -52,7 +52,6 @@ Import-Module PolicyFileEditor
 # Currently it is set to apply to the full machine policy, 
 # but you can choose to just apply these settings to user policy.
 # Just change what is commented out below
-
 $MachinePolicy = "$env:windir\system32\GroupPolicy\Machine\registry.pol"
 $UserPolicy = "$env:windir\system32\GroupPolicy\User\registry.pol"
 $RegType = "DWord"
@@ -77,8 +76,7 @@ if($PolicyScope -eq "Machine"){
 
 #################################################################
 # Start VM creation in Hyper-V
-
-New-VM -Name $WinVMName -MemoryStartupBytes 8GB -BootDevice VHD -NewVHDPath .\VMs\Win11.vhdx -Path .\VMData -NewVHDSizeBytes 175GB -Generation 2 -Switch "Default Switch"
+New-VM -Name $WinVMName -MemoryStartupBytes 8GB -BootDevice VHD -NewVHDPath $vhdPath -Path .\VMData -NewVHDSizeBytes 175GB -Generation 2 -Switch "Default Switch"
 Set-VMProcessor -VMName $WinVMName -Count 2
 Set-VMDvdDrive -VMName $WinVMName -ControllerNumber 1 -Path $IsoPath
 Enable-VMIntegrationService * -VMName $WinVMName
@@ -92,7 +90,24 @@ Set-VMKeyProtector -VMName $WinVMName -KeyProtector $kp.RawData
 Enable-VMTPM -VMName $WinVMName
 Set-VMSecurity -VMName $WinVMName -EncryptStateAndVmMigrationTraffic $true
 
-# TODO: Verify if VM exists before trying this. No sense running it if the VM fails to build
-VMConnect.exe localhost $WinVMName /edit
+# Verify if VM exists before trying to run it. Delete if it does.
+$Exists = Get-VM -VMName $WinVMName -ErrorAction SilentlyContinue
+
+if($Exists){
+	Write "Windows 11 VM creation successful. Starting first run of VM."
+    VMConnect.exe localhost $WinVMName /edit
+}
+else{
+	Write "Windows 11 VM creation failed. Checking if failed VHD was still created."
+    if(Test-Path $vhdPath) {
+        Write-Host "VHD was created. Deleting failed VHD."
+        #Perform file based operation.. If file exists then delete file
+        Remove-Item $vhdPath -Confirm
+    }
+    else
+    {
+        Write-Host "VHD was not created. Terminating script. Try again once errors resolved."
+    }
+}
 
 # View ReadMe for next steps
