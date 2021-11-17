@@ -55,6 +55,8 @@ The following [Ninite link](https://ninite.com/cccp-filezilla-gimp-notepadpluspl
    - Gimp (basically a free version of Photoshop)
    - Zoom
 
+  You can also just visit the [Ninite homepage]((https://ninite.com/) to customize a Ninite installer to suit your needs.
+  
 ## Microsoft Teams
 
 Install Teams using the following url: https://www.microsoft.com/en-us/microsoft-teams/download-app
