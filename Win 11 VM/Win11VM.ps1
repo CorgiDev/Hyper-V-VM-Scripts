@@ -7,10 +7,10 @@ $PolicyScope = "Machine"
 # Location where you saved your ISO file.
 $IsoPath = "C:\Users\%USERPROFILE%\Downloads\Win11_English_x64.iso"
 # Locatiion where your VHD will be saved
-$vhdPath = "C:\VMs\Win11.vhdx"
+$vhdPath = "C:\VMs\VHDs\Win11.vhdx"
 # Variables used for log file
-$currentTimeStamp = (Get-Date -Format �MM-dd-yyyy_hh-mm-ss�).ToString()
-$logPath = "C:\VM_Creation_Logs\VMCreationLog_" + $currentTimeStamp + ".txt"
+$currentTimeStamp = (Get-Date -Format "MM-dd-yyyy_hh-mm-ss").ToString()
+$logPath = "C:\VMs\VM Logs\VM-Log_" + $currentTimeStamp + ".txt"
 
 #################################################################
 # Functions
@@ -57,6 +57,37 @@ function Dismount-CustomVM{
     }
 }
 
+# Loads Powershell modules, script obtined from https://stackoverflow.com/a/51692402
+function Load-Module ($m) {
+
+    # If module is imported say that and do nothing
+    if (Get-Module | Where-Object {$_.Name -eq $m}) {
+        write-host "Module $m is already imported."
+    }
+    else {
+
+        # If module is not imported, but available on disk then import
+        if (Get-Module -ListAvailable | Where-Object {$_.Name -eq $m}) {
+            Import-Module $m -Verbose
+        }
+        else {
+
+            # If module is not imported, not available on disk, but is in online gallery then install and import
+            if (Find-Module -Name $m | Where-Object {$_.Name -eq $m}) {
+                Install-Module -Name $m -Force -Verbose -Scope CurrentUser
+                Import-Module $m -Verbose
+            }
+            else {
+
+                # If the module is not imported, not available and not in the online gallery then abort
+                write-host "Module $m not imported, not available and not in an online gallery, exiting."
+                Stop-Transcript
+                EXIT 1
+            }
+        }
+    }
+}
+
 #################################################################
 # Ensure script run as Admin and relaunch if not
 #################################################################
@@ -73,30 +104,14 @@ if (-not ($CurrentPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRo
     return
 }
 
-# Thsi is used for storing info related to the run in case you need it for troubleshooting and such.
+# This is used for storing info related to the run in case you need it for troubleshooting and such.
 Start-Transcript -path $logPath
 
 #################################################################
 # Install/Enable various modules and features
 #################################################################
-# Installs RSAT tools to allow for GPO modifications later
-try{
-    Write-Host "Installing RSAT tools from Microsoft."
-    Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability -Online
-}catch{
-    Write-Host "Installation of RSAT tools failed. Exiting script."
-    Stop-Transcript
-}
-
-# Install PolicyFileEditor Module
-# https://www.powershellgallery.com/packages/PolicyFileEditor/
-Write-Host "Installing the PolicyEditor Powershell Module from Powershell Gallery."
-if(-not(Get-InstalledModule PolicyFileEditor -ErrorAction silentlycontinue)){
-    Install-Module PolicyFileEditor -Confirm:$False -Force
-}
-
-# Turns on the Hyper-V feature if not enabled
-Write-Host "Enabling Hyper-V feature in Windows."
+# Turns on Hyper-V if not enabled
+Write-Host "Checking if Hyper-V feature enabled in Windows."
 $hyperv = Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online
 if($hyperv.State -eq "Enabled") {
     Write-Host "Hyper-V already enabled."
@@ -105,16 +120,24 @@ if($hyperv.State -eq "Enabled") {
     Write-Host "Hyper-V enabled."
 }
 
-Write-Host "Importing GroupPolicy and PolicyEditor Powershell modules."
-try{
-    # Import the GPO Module (Requires RSAT first)
-    Import-Module grouppolicy
-    # Import PolicyFileEditor Module
-    Import-Module PolicyFileEditor
-}catch{
-    Write-Host "Module import failed. Exiting script."
-    Stop-Transcript
+# Install RSAT if not already installed.
+Write-Host "Verifying if RSAT install status."
+$rsatState = Get-WindowsCapability -Name Rsat.GroupPolicy.Management.Tools* -Online | Select-Object -Property DisplayName, State
+if($rsatState.State -eq "Installed"){
+    Write-Host "RSAT tools installed."
+}else{
+    try{
+        Write-Host "RSAT unavailable. Attempting install from Microsoft."
+        Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability -Online
+    }catch{
+        Write-Host "Installation of RSAT tools failed. Exiting script."
+        Stop-Transcript
+    }
 }
+
+# Load Powershell Modules
+Load-Module "PolicyFileEditor"
+Load-Module "GroupPolicy" # Requires RSAT be installed first.
 
 #################################################################
 # Enable GPO needed for USB device use
@@ -164,9 +187,7 @@ try{
     Update-VMVersion -VMName $WinVMName -Force
 
     # Everything needed to get TPM enabled
-    $owner = Get-HgsGuardian UntrustedGuardian
-    $kp = New-HgsKeyProtector -Owner $owner -AllowUntrustedRoot
-    Set-VMKeyProtector -VMName $WinVMName -KeyProtector $kp.RawData
+    Set-VMKeyProtector -VMName $WinVMName -NewLocalKeyProtector
     Enable-VMTPM -VMName $WinVMName
     Set-VMSecurity -VMName $WinVMName -EncryptStateAndVmMigrationTraffic $true
 
