@@ -36,7 +36,7 @@ The following are things you must have before you can create a VM in Hyper-V, pa
 18. Turn on Bitlocker.
 19. If using your personal account, go to "Settings" > "Accounts" > "Access work or schoool" and connect your work/school account.
 
-##
+## Issue: Running Scripts Disabled
 
 If you get an error about not being able to run the script because running scripts is disabled on this system there is an easy fix for this. The error will look similar to the one shown below:
 
