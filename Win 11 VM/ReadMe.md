@@ -106,24 +106,35 @@ Install Teams using the following url: https://www.microsoft.com/en-us/microsoft
 
 ## Sources
 
-These are some of the sources I used for this:
+These are some of the general sources I used for this:
 
+- https://www.danielengberg.com/create-hyper-v-vm-powershell/
+- https://4sysops.com/archives/install-windows-11-in-a-virtual-machine/
+- https://docs.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-machine-in-hyper-v
+- https://www.altaro.com/hyper-v/using-powershell-manage-utilize-hyper-v-integration-services-server-2012-r2/
 - https://subscription.packtpub.com/book/virtualization-and-cloud/9781785884313/6/ch06lvl1sec57/vm-protection-vtpm (Requires a subscription to view)
 - https://deploywindows.com/2015/11/13/add-virtual-tpm-in-windows-10-hyper-v-guest-with-powershell/
 - https://www.reddit.com/r/HyperV/comments/d2u832/vtpm_operation_failed_when_performing_enablevmtpm/
-- https://www.altaro.com/hyper-v/using-powershell-manage-utilize-hyper-v-integration-services-server-2012-r2/
-- https://www.danielengberg.com/create-hyper-v-vm-powershell/
-- https://4sysops.com/archives/install-windows-11-in-a-virtual-machine/
 - https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/manage/component-updates/tpm-key-attestation
-- https://docs.microsoft.com/en-us/powershell/module/hyper-v/enable-vmtpm?view=windowsserver2019-ps
-- https://docs.microsoft.com/en-us/powershell/module/hyper-v/enable-vmintegrationservice?view=windowsserver2019-ps
-- https://docs.microsoft.com/en-us/powershell/module/hyper-v/get-vm?view=windowsserver2019-ps
-- https://docs.microsoft.com/en-us/powershell/module/hyper-v/set-vmsecurity?view=windowsserver2019-ps
-- https://docs.microsoft.com/en-us/powershell/module/hyper-v/new-vm?view=windowsserver2019-ps
-- https://docs.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-machine-in-hyper-v
-- https://stackoverflow.com/users/1928691/federico-navarrete
-   - https://stackoverflow.com/a/51692402
+- https://www.archy.net/hyper-v-2016-add-vmtpm-issue/
+
+### Windows Features/Tools Related
+
+These resources are more specifically related to Installing/Enabling RSAT.
+
 - https://geekshangout.com/install-all-rsat-tools-via-powershell/
 - https://mikefrobbins.com/2018/10/03/use-powershell-to-install-the-remote-server-administration-tools-rsat-on-windows-10-version-1809/
 - https://www.itechguides.com/rsat-windows-10/#:~:text=RSAT%20will%20be%20listed.%20To%20confirm%20that%20this,command%20prompt%2C%20type%20this%20command.%20Then%20press%20enter
-- https://www.archy.net/hyper-v-2016-add-vmtpm-issue/
+
+### Powershell Related
+
+These resources are more specifically related to specific Powershell commands/modules.
+
+- https://www.educba.com/powershell-exit/
+- https://docs.microsoft.com/en-us/powershell/module/hyper-v/get-vm?view=windowsserver2019-ps
+- https://docs.microsoft.com/en-us/powershell/module/hyper-v/set-vmsecurity?view=windowsserver2019-ps
+- https://docs.microsoft.com/en-us/powershell/module/hyper-v/new-vm?view=windowsserver2019-ps
+- https://stackoverflow.com/users/1928691/federico-navarrete
+   - https://stackoverflow.com/a/51692402
+- https://docs.microsoft.com/en-us/powershell/module/hyper-v/enable-vmtpm?view=windowsserver2019-ps
+- https://docs.microsoft.com/en-us/powershell/module/hyper-v/enable-vmintegrationservice?view=windowsserver2019-ps
