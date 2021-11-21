@@ -1,14 +1,10 @@
 #################################################################
 # Parameters
 #################################################################
-$WinVMName = "Test-Win11VM"
-# Scope used for GPO. Can be set to "Machine" or "User".
-$PolicyScope = "Machine"
-# Location where you saved your ISO file.
-$IsoPath = "C:\Users\%USERPROFILE%\Downloads\Win11_English_x64.iso"
-# Locatiion where your VHD will be saved
-$vhdPath = "C:\VMs\VHDs\Win11.vhdx"
-# Variables used for log file
+$WinVMName = "Win11VM"
+$PolicyScope = "Machine" # Scope used for GPO. Can be set to "Machine" or "User".
+$IsoPath = "$env:userprofile\Downloads\Win11_English_x64.iso" # Location where you saved your ISO file.
+$vhdPath = "C:\VMs\VHDs\Win11.vhdx" # Locatiion where your VHD will be saved
 $currentTimeStamp = (Get-Date -Format "MM-dd-yyyy_hh-mm-ss").ToString()
 $logPath = "C:\VMs\VM Logs\VM-Log_" + $currentTimeStamp + ".txt"
 
@@ -43,7 +39,7 @@ function Dismount-CustomVM{
         Write-Host "Failed VM found. Removing failed VM."
         Remove-VM -Name $VMName -Force
     }else{
-        Write-Host "VM was not created successfully. Completing clean up."
+        Write-Host "VM not found in Hyper-V. Checking for failed VHD."
     }
 
     if(Test-Path $VHDPath) {
@@ -55,6 +51,8 @@ function Dismount-CustomVM{
     {
         Write-Host "No fuirther cleanup necessary. Terminating script. Try again once errors resolved."
     }
+
+    Write-Host "Cleanup completed."
 }
 
 # Loads Powershell modules, script obtined from https://stackoverflow.com/a/51692402
@@ -74,15 +72,17 @@ function Load-Module ($m) {
 
             # If module is not imported, not available on disk, but is in online gallery then install and import
             if (Find-Module -Name $m | Where-Object {$_.Name -eq $m}) {
+                Write-Host "Installing $m module"
                 Install-Module -Name $m -Force -Verbose -Scope CurrentUser
+                Write-Host "Importing $m module"
                 Import-Module $m -Verbose
             }
             else {
 
                 # If the module is not imported, not available and not in the online gallery then abort
-                write-host "Module $m not imported, not available and not in an online gallery, exiting."
+                write-host "Module $m not imported, not available, and not in an online gallery. Exiting."
                 Stop-Transcript
-                EXIT 1
+                exit 1
             }
         }
     }
@@ -168,21 +168,25 @@ try{
     }else{
         Write-Host "Policy scope not set properly. Policy has not been applied and USB devices may not work on VM. Terminating script."
         Stop-Transcript
-        break
+        Exit
     }
 }catch{
     Stop-Transcript
+    Exit
 }
 
 #################################################################
-# Start VM creation in Hyper-V
+# Start Hyper-V VM creation
 #################################################################
-# TODO: If any errors occur, the VM needs to be deleted still since it won't have been created correctly.
 try{
     New-VM -Name $WinVMName -MemoryStartupBytes 8GB -BootDevice VHD -NewVHDPath $vhdPath -Path .\VMData -NewVHDSizeBytes 175GB -Generation 2 -Switch "Default Switch"
     Set-VMProcessor -VMName $WinVMName -Count 2
-    Set-VMDvdDrive -VMName $WinVMName -ControllerNumber 1 -Path $IsoPath
-    Enable-VMIntegrationService * -VMName $WinVMName
+
+    Add-VMDvdDrive -VMName $WinVMName -Path $IsoPath
+    $dvd = Get-VMDVDDrive -VMName $WinVMName
+    Set-VMFirmware -VMName $WinVMName -FirstBootDevice $dvd
+
+    Enable-VMIntegrationService * -VMName $WinVMName # Turns on all the integration service options
     Set-VMFirmware -VMName $WinVMName -EnableSecureBoot On -SecureBootTemplate MicrosoftWindows
     Update-VMVersion -VMName $WinVMName -Force
 
@@ -191,6 +195,7 @@ try{
     Enable-VMTPM -VMName $WinVMName
     Set-VMSecurity -VMName $WinVMName -EncryptStateAndVmMigrationTraffic $true
 
+    # Verify VM was created
     $exists = Get-VM -VMName $WinVMName -ErrorAction SilentlyContinue
     Confirm-VMExistence -Exists $exists -VHDPath $vhdPath -VMName $WinVMName
 }
@@ -199,6 +204,7 @@ catch{
     Write-Host "Windows 11 VM creation did not complete successfully. Performing cleanup."
     Dismount-CustomVM -Exists $exists -VHDPath $vhdPath -VMName $WinVMName
     Stop-Transcript
+    Exit
 }
 
 Stop-Transcript
