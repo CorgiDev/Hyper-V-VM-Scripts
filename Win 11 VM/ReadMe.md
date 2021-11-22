@@ -78,6 +78,42 @@ MachinePolicy       Undefined
 
 Now run the VM creation script again. Barring any other issues, the script should run successfully now.
 
+## Issue: Unable to turn off Windows Hello on the VM
+
+Occassionally, the option to remove Windows Hello will not be available to the user. In this case, you have one of 2 options:
+
+1. You can leave Windows Hello enabled, but disable "Enhanced session" using the "View" drop-down menu of the VM window's menu bar. You cannot login and then enable it again because it will reload the window and take you back to the login screen which won't be visible due to the glitch in Windows 10/11 with Enhanced Session and Windows Hello.
+2. Disable Windows Hello in the VM from Local GPO or the Registry.
+
+### Disable Windows Hello from the Local GPO (Recommended)
+
+1. Open the Group Policy Editor and navigate to `Computer Configuration > Administrative Templates > System > Logon
+2. Double-click on Turn on convenience PIN sign-in
+3. Click on Disabled to disable the prompt or Not Configured for the default setting.
+4. Run `gpupdate /force` in a Command Prompt window and try to remove the Windows Hello pin again.
+5. If you still are unable to remove the pin, make sure the option to "For improved security, only allow Windows Hello sign-in for Microsoft accounts on this device (Recommended)" is turned OFF.
+6. Then go to the Pin option and select the "I forgot my pin" option. 
+7. Proceed through the windows until you get to where you would set a new pin. At this stage, the stored pin has been removed.
+8. Simply cancel out of the window without setting a new pin. You may get a message about one being required, but you can still exit out and the pin will be removed. 
+
+Now you can use Windows with "Enhanced session" and just log in with your password. When you log in, you may still be prompted for a pin, but you can select "Sign-In options" and select to login with your Microsoft account password.
+
+### Disable Windows Hello from the Registry (Less Recommended)
+
+1. Open the Registry by running `regedit.exe` or finding it in the Start Menu.
+2. Navigate to `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Settings\AllowSignInOptions`
+3. Double-click on `value` on the right pane.
+4. Change the Value data to `0`. You would change the Value data back to `1` if you later wish to re-enable Windows Hello.
+5. Reboot.
+6. If you still are unable to remove the pin, make sure the option to "For improved security, only allow Windows Hello sign-in for Microsoft accounts on this device (Recommended)" is turned OFF.
+7. Then go to the Pin option and select the "I forgot my pin" option. 
+8. Proceed through the windows until you get to where you would set a new pin. At this stage, the stored pin has been removed.
+9. Simply cancel out of the window without setting a new pin. You may get a message about one being required, but you can still exit out and the pin will be removed. 
+
+Now you can use Windows with "Enhanced session" and just log in with your password. When you log in, you may still be prompted for a pin, but you can select "Sign-In options" and select to login with your Microsoft account password.
+
+- Source: [MajorGeeks.com - How to Disable Windows Hello PIN in Windows 10 and 11](https://www.majorgeeks.com/content/page/disable_windows_hello.html)
+
 ## Additional Recommended Installs
 
 Links in this section must be accessed from within the VM or they will download to your physical machine. Unless of course, you shared a drive with your VM.
